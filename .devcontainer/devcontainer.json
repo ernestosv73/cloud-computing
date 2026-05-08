@@ -1,0 +1,114 @@
+{
+  // ============================================
+  // PARTE 1: CONFIGURACIÓN BÁSICA (PaaS - Platform as a Service)
+  // ============================================
+  // Nombre didáctico del entorno
+  "name": "Security-Lab - Cloud Computing & Container Auditing",
+  
+  // Imagen base oficial con herramientas de desarrollo y seguridad
+  // He elegido ubuntu:22.04 por estabilidad LTS y amplio soporte
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
+  
+  // ============================================
+  // PARTE 2: HABILITAR DOCKER-IN-DOCKER (Clave para el laboratorio)
+  // ============================================
+  // Esto permite que los estudiantes ejecuten contenedores DENTRO del codespace
+  // Simula un entorno de múltiples servidores (IaaS simulado sobre PaaS)
+  "features": {
+    // Feature oficial de Docker-in-Docker (DinD)
+    // Permite construir y ejecutar contenedores aislados
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "enableNonRootDocker": "true",
+      "moby": "true"
+    },
+    
+    // Feature de Git (ya incluido, pero explícito para claridad)
+    "ghcr.io/devcontainers/features/git:1": {
+      "version": "os-provided"
+    }
+  },
+  
+  // ============================================
+  // PARTE 3: PERSONALIZACIÓN DEL ENTORNO DE TRABAJO
+  // ============================================
+  // Extensiones de VS Code para el laboratorio
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // Para trabajar con Docker Compose visualmente
+        "ms-azuretools.vscode-docker",
+        // Para editar archivos YAML con validación
+        "redhat.vscode-yaml",
+        // Terminal mejorada
+        "eamodio.gitlens",
+        // Para visualizar logs de seguridad
+        "ms-vscode.hexeditor"
+      ],
+      "settings": {
+        // Configuración educativa: terminal con historial grande
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.scrollback": 10000,
+        // Editor configurado para mostrar caracteres invisibles (útil para logs)
+        "editor.renderWhitespace": "boundary"
+      }
+    }
+  },
+  
+  // ============================================
+  // PARTE 4: SCRIPTS POST-CREACIÓN (Setup automático del laboratorio)
+  // ============================================
+  // Se ejecutan automáticamente cuando se inicia el codespace
+  "postCreateCommand": "bash .devcontainer/setup-lab.sh",
+  
+  // Comando alternativo para reinicio del contenedor (si es necesario)
+  "postStartCommand": "echo '🔐 Laboratorio de Seguridad listo. Ejecuta: docker-compose -f lab-security/docker-compose.yml up -d'",
+  
+  // ============================================
+  // PARTE 5: RECURSOS COMPUTACIONALES (Importante para simulación)
+  // ============================================
+  // Solicitar recursos adecuados para múltiples contenedores
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "4gb",
+    "storage": "32gb"
+  },
+  
+  // ============================================
+  // PARTE 6: PUERTOS EXPUESTOS (Para escaneos internos)
+  // ============================================
+  // Estos puertos serán visibles en la interfaz de Codespaces
+  // Los estudiantes escanearán los puertos internos del contenedor víctima
+  "forwardPorts": [8080, 2222, 8081],
+  
+  // Configuración para que los puertos se automaticen
+  "portsAttributes": {
+    "8080": {
+      "label": "Servidor Vulnerable (Apache con CVEs simulados)",
+      "onAutoForward": "notify"
+    },
+    "2222": {
+      "label": "SSH Vulnerable (Credenciales débiles)",
+      "onAutoForward": "silent"
+    },
+    "8081": {
+      "label": "Servidor Seguro (Nginx con HTTPS)",
+      "onAutoForward": "notify"
+    }
+  },
+  
+  // ============================================
+  // PARTE 7: VARIABLES DE ENTORNO PARA EJERCICIOS
+  // ============================================
+  "containerEnv": {
+    "LAB_MODE": "security-audit",
+    "TARGET_IP": "localhost",
+    "WARNING": "ESTE LABORATORIO ES PARA FINES ACADÉMICOS - NO ATACAR IPs EXTERNAS"
+  },
+  
+  // ============================================
+  // PARTE 8: COMANDOS OPCIONALES PARA VERIFICAR SEGURIDAD
+  // ============================================
+  // Verificar que Docker funciona correctamente
+  "initializeCommand": "echo '✅ Inicializando laboratorio de seguridad en la nube...'"
+}
